@@ -1,10 +1,19 @@
 import React from 'react';
 import Layout from '../components/Layout';
 import { useSession } from '../context/SessionContext';
-import { Leaf, Dumbbell, Droplets, Trash2, ArrowUpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Leaf, Dumbbell, Trash2, ArrowUpCircle, X } from 'lucide-react';
 
 const FeedScreen = () => {
-  const { monster } = useSession();
+  const { monster, feedMonster } = useSession();
+  const navigate = useNavigate();
+
+  const handleFeed = () => {
+    // Simulate feeding the current displayed item
+    const food = { name: 'Fresh Apple', carbs: 25, proteins: 0.5, fats: 0.3, fiber: 'high' };
+    feedMonster(food);
+    navigate('/result', { state: { food } });
+  };
 
   return (
     <Layout>
@@ -43,7 +52,7 @@ const FeedScreen = () => {
              alignItems: 'center',
              justifyContent: 'center'
            }}>
-              <img src="https://cdn-icons-png.flaticon.com/512/415/415733.png" alt="Apple" style={{ width: '70%', transform: 'rotate(-10deg)' }} />
+              <span style={{ fontSize: '5rem' }}>🍎</span>
               <div style={{
                 position: 'absolute',
                 bottom: '-20px',
@@ -60,12 +69,12 @@ const FeedScreen = () => {
            <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Barnaby is hungry!</h1>
            <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>That apple looks like a great snack!</p>
 
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+           {/* Nutrient Cards */}
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <NutrientCard 
                 icon={<Leaf size={20} />} 
                 value={`${Math.round(monster.stats.carbs * 100)}g`} 
                 label="ENERGY CARBS" 
-                color="var(--accent-orange)" 
                 progress={monster.evolutionProgress} 
                 goal="Daily Goal" 
               />
@@ -103,7 +112,8 @@ const FeedScreen = () => {
              background: '#fff', 
              display: 'flex', 
              alignItems: 'center', 
-             justifyContent: 'center'
+             justifyContent: 'center',
+             flexShrink: 0
            }}>
               <Trash2 size={24} color="#90A4AE" />
            </div>
@@ -111,13 +121,14 @@ const FeedScreen = () => {
               <h3 style={{ fontSize: '0.95rem', marginBottom: '4px' }}>Junk Food Alert</h3>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Soda and candy make Barnaby sleepy. Stick to the fruit!</p>
            </div>
-           <div style={{ display: 'flex', gap: '8px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#E0E7E9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={16} /></div>
-           </div>
         </section>
 
         {/* Action Button */}
-        <button className="btn-primary" style={{ width: '100%', padding: '24px', fontSize: '1.5rem', marginBottom: '20px' }}>
+        <button 
+          className="btn-primary" 
+          style={{ width: '100%', padding: '24px', fontSize: '1.5rem', marginBottom: '20px' }}
+          onClick={handleFeed}
+        >
            Feed Now!
         </button>
         <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -129,7 +140,7 @@ const FeedScreen = () => {
   );
 };
 
-const NutrientCard = ({ icon, value, label, color, progress, goal }) => (
+const NutrientCard = ({ icon, value, label, progress, goal }) => (
   <div style={{ 
     background: '#fff', 
     borderRadius: '24px', 
@@ -141,15 +152,7 @@ const NutrientCard = ({ icon, value, label, color, progress, goal }) => (
     gap: '12px'
   }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-       <div style={{ 
-         width: '48px', 
-         height: '48px', 
-         borderRadius: '50%', 
-         background: 'var(--accent-orange)', 
-         opacity: 0.2, 
-         position: 'absolute' 
-       }} />
-       <div style={{ position: 'relative', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-orange)' }}>
+       <div style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-orange)' }}>
           {icon}
        </div>
        <div style={{ textAlign: 'right' }}>
@@ -157,7 +160,6 @@ const NutrientCard = ({ icon, value, label, color, progress, goal }) => (
           <p style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text-muted)' }}>{label}</p>
        </div>
     </div>
-    
     <div>
        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.8rem' }}>
           <span style={{ fontWeight: 600 }}>{goal}</span>
@@ -172,22 +174,11 @@ const NutrientCard = ({ icon, value, label, color, progress, goal }) => (
 
 const NutrientCardMini = ({ icon, value, label, color }) => (
   <div style={{ 
-    background: color, 
-    opacity: 0.15, 
-    borderRadius: '24px', 
-    padding: '24px',
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 0
-  }} />
-  , 
-  <div style={{ 
     borderRadius: '24px', 
     padding: '24px',
     textAlign: 'center',
     position: 'relative',
-    background: 'transparent',
+    overflow: 'hidden',
     border: '1px solid rgba(0,0,0,0.05)',
     display: 'flex',
     flexDirection: 'column',
@@ -199,10 +190,8 @@ const NutrientCardMini = ({ icon, value, label, color }) => (
      <p style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)' }}>{label}</p>
      <div style={{ 
        position: 'absolute', 
-       top: 0, 
-       left: 0, 
-       width: '100%', 
-       height: '100%', 
+       top: 0, left: 0, 
+       width: '100%', height: '100%', 
        background: color, 
        opacity: 0.1, 
        borderRadius: '24px', 
