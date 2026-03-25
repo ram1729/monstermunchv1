@@ -18,7 +18,7 @@ function App() {
   return (
     <SessionProvider>
       <MobileGuard>
-        <Router>
+        <Router basename="/monstermunchv1">
           <div className="app-container">
             <Routes>
               <Route path="/" element={<WelcomeScreen />} />
